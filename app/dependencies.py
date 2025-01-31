@@ -1,8 +1,5 @@
-from .config import Settings, DatabaseSettings
+# from .config import settings, DatabaseSettings
 
 
-settings = Settings()
-
-
-def get_db_settings() -> DatabaseSettings:
-    return settings.db
+# def get_db_settings() -> DatabaseSettings:
+    # return settings.db

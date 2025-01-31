@@ -59,6 +59,8 @@ mdurl==0.1.2
     # via markdown-it-py
 passlib[bcrypt]==1.7.4
     # via -r requirements.in
+psycopg==3.2.4
+    # via -r requirements.in
 pydantic==2.10.6
     # via
     #   -r requirements.in

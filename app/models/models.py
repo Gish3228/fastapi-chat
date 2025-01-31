@@ -18,15 +18,15 @@ class Chat(SQLModel, table=True):
 
 
 class ChatMember(SQLModel, table=True):
-    user_id: UUID = Field(index=True, foreign_key='user.id', ondelete='CASCADE')
-    chat_id: UUID = Field(index=True, foreign_key='chat.id', ondelete='CASCADE')
+    user_id: UUID = Field(index=True, foreign_key='user.id', primary_key=True, ondelete='CASCADE')
+    chat_id: UUID = Field(index=True, foreign_key='chat.id', primary_key=True, ondelete='CASCADE')
     role: str
 
 
-class Message():
+class Message(SQLModel, table=True):
     id: int | None = Field(primary_key=True)
     text: str
-    send_time: datetime = Field(default_factory=datetime.now(timezone.utc))
+    send_time: datetime = Field(default_factory=lambda :datetime.now(timezone.utc))
     user_id: UUID = Field(index=True, foreign_key='user.id', ondelete='CASCADE')
     chat_id: UUID = Field(index=True, foreign_key='chat.id', ondelete='CASCADE')
 

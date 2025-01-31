@@ -13,3 +13,7 @@ class DatabaseSettings(BaseModel):
 class Settings(BaseSettings):
     db: DatabaseSettings
     model_config = SettingsConfigDict(env_file='.env', env_nested_delimiter='__')
+    
+
+
+settings = Settings()
