@@ -13,5 +13,7 @@ invalid_credentials_exc = HTTPException(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-login_in_use_exc = HTTPException(status_code=400, detail='Login is already in use')
+login_in_use_exc = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail='Login is already in use')
 
