@@ -13,12 +13,16 @@ anyio==4.8.0
     #   httpx
     #   starlette
     #   watchfiles
-bcrypt==4.2.1
-    # via passlib
+argon2-cffi==23.1.0
+    # via -r requirements.in
+argon2-cffi-bindings==21.2.0
+    # via argon2-cffi
 certifi==2024.12.14
     # via
     #   httpcore
     #   httpx
+cffi==1.17.1
+    # via argon2-cffi-bindings
 click==8.1.8
     # via
     #   rich-toolkit
@@ -57,10 +61,10 @@ markupsafe==3.0.2
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-passlib[bcrypt]==1.7.4
-    # via -r requirements.in
 psycopg==3.2.4
     # via -r requirements.in
+pycparser==2.22
+    # via cffi
 pydantic==2.10.6
     # via
     #   -r requirements.in
