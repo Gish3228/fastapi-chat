@@ -5,6 +5,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from argon2.exceptions import VerifyMismatchError
 from jwt.exceptions import InvalidTokenError
+from uuid import UUID
 import jwt
 
 from ..models.user import User
@@ -35,9 +36,8 @@ async def get_jwt_settings():
     return settings.jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
-                           jwt_settings: Annotated[JWTSettings, Depends(get_jwt_settings)],
-                           session: Annotated[AsyncSession, Depends(get_session)]) -> User:
+async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)], 
+                              jwt_settings: Annotated[JWTSettings, Depends(get_jwt_settings)]) -> UUID:
     try:
         payload = jwt.decode(token, jwt_settings.secret_key, algorithms=[jwt_settings.algorithm])
         user_id: str = payload.get("sub")
@@ -46,7 +46,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],
         token_data = TokenData(user_id=user_id)
     except InvalidTokenError:
         raise invalid_token_exc
-    user = await session.get(User, token_data.user_id)
+    return token_data.user_id
+
+
+async def get_current_user(user_id: Annotated[UUID, Depends(get_current_user_id)],
+                           session: Annotated[AsyncSession, Depends(get_session)]) -> User:
+    user = await session.get(User, user_id)
     if user is None:
         raise invalid_token_exc
     return user
+    
