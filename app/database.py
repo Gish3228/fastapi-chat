@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from .config import settings
 
 
-engine = create_async_engine(f'postgresql+psycopg://{settings.db.user}:{settings.db.password}'
+engine = create_async_engine(f'postgresql+psycopg_async://{settings.db.user}:{settings.db.password}'
 f'@{settings.db.host}:{settings.db.port}/{settings.db.db_name}')
 
 
