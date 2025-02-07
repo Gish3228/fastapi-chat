@@ -49,10 +49,15 @@ async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)],
     return token_data.user_id
 
 
-async def get_current_user(user_id: Annotated[UUID, Depends(get_current_user_id)],
-                           session: Annotated[AsyncSession, Depends(get_session)]) -> User:
-    user = await session.get(User, user_id)
-    if user is None:
-        raise invalid_token_exc
-    return user
+class GetCurrentUserFactory:
+    def __init__(self, *args):
+        self.options = args
+
+    async def __call__(self,
+                       user_id: Annotated[UUID, Depends(get_current_user_id)],
+                       session: Annotated[AsyncSession, Depends(get_session)]) -> User:
+        user = await session.get(User, user_id, options=self.options)
+        if user is None:
+            raise invalid_token_exc
+        return user
     

@@ -7,7 +7,7 @@ from uuid import UUID
 
 from ..models.user import UserCreate, User, UserPrivate, UserUpdate, UserPublic
 from ..dependencies.common import get_session
-from ..dependencies.security import get_current_user
+from ..dependencies.security import GetCurrentUserFactory
 from ..utils.security import get_password_hash
 from ..exeptions import login_in_use_exc, not_null_violation_exc, user_not_found_exc
 
@@ -31,12 +31,12 @@ async def user_post(user: UserCreate, session: Annotated[AsyncSession, Depends(g
 
 
 @router.get('/me', response_model=UserPrivate)
-async def get_users_me(user: Annotated[User, Depends(get_current_user)]):
+async def get_users_me(user: Annotated[User, Depends(GetCurrentUserFactory())]):
     return user
 
 
 @router.patch('/me')
-async def update_users_me(user_db: Annotated[User, Depends(get_current_user)],
+async def update_users_me(user_db: Annotated[User, Depends(GetCurrentUserFactory())],
                           session: Annotated[AsyncSession, Depends(get_session)],
                           user_update: UserUpdate):
 
