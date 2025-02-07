@@ -10,9 +10,20 @@ if TYPE_CHECKING:
     from .message import Message
 
 
-class Chat(AsyncAttrs, SQLModel, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+class ChatBase(SQLModel):
     name: str
+
+
+class ChatCreate(ChatBase):
+    pass
+
+
+class ChatPublic(ChatBase):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+
+
+class Chat(AsyncAttrs, ChatPublic, table=True):
+    __tablename__ = 'chat'
 
     user_links: list[ChatMember] = Relationship(back_populates='chat', passive_deletes=True)
     users: list['User'] = Relationship(back_populates='chats', link_model=ChatMember,

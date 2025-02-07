@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
-from sqlmodel import Session, select
 
 from ..models.user import User
 from ..models.misc import Token

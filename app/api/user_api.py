@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from psycopg.errors import UniqueViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError
@@ -15,7 +15,7 @@ from ..exeptions import login_in_use_exc, not_null_violation_exc, user_not_found
 router = APIRouter(tags=['users'])
 
 
-@router.post('/')
+@router.post('/', status_code=status.HTTP_201_CREATED)
 async def user_post(user: UserCreate, session: Annotated[AsyncSession, Depends(get_session)]):
     hashed_password = get_password_hash(user.password)
     db_user = User.model_validate(user, update={'hashed_password': hashed_password})

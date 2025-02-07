@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class Message(AsyncAttrs, SQLModel, table=True):
+    __tablename__ = 'message'
+    
     id: int | None = Field(primary_key=True)
     text: str
     send_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -9,24 +9,22 @@ if TYPE_CHECKING:
     from .message import Message
 
 
-class UserBasePublic(SQLModel):
+class UserBase(SQLModel):
     name: str
     info: str = Field(default='')
 
 
-class UserBasePrivate(UserBasePublic):
-    login: str = Field(unique=True, index=True)
-
-
-class UserPublic(UserBasePublic):
-    pass
-
-class UserPrivate(UserBasePrivate):
-    pass
-
-
-class UserCreate(UserBasePrivate):
+class UserCreate(UserBase):
+    login: str
     password: str
+
+
+class UserPublic(UserBase):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+
+
+class UserPrivate(UserPublic):
+    login: str = Field(unique=True, index=True)
 
 
 class UserUpdate(SQLModel):
@@ -36,8 +34,9 @@ class UserUpdate(SQLModel):
     info: str | None = None
 
 
-class User(AsyncAttrs, UserBasePrivate, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+class User(AsyncAttrs, UserPrivate, table=True):
+    __tablename__ = 'user'
+
     hashed_password: str
     is_active: bool = Field(default=True)
 

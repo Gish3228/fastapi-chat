@@ -10,9 +10,11 @@ if TYPE_CHECKING:
 
 
 class ChatMember(AsyncAttrs, SQLModel, table=True):
+    __tablename__ = 'chat_member'
+
     user_id: UUID = Field(index=True, foreign_key='user.id', primary_key=True, ondelete='CASCADE')
     chat_id: UUID = Field(index=True, foreign_key='chat.id', primary_key=True, ondelete='CASCADE')
-    role: str
+    role: str | None = Field(default=None)
 
     user: list['User'] = Relationship(back_populates='chat_links')
     chat: list['Chat'] = Relationship(back_populates='user_links')
