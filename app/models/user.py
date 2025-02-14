@@ -9,18 +9,24 @@ if TYPE_CHECKING:
     from .message import Message
 
 
-class UserBase(SQLModel):
-    name: str
-    info: str = Field(default='')
-
-
-class UserCreate(UserBase):
+class UserCreate(SQLModel):
     login: str
     password: str
+    name: str
+    info: str = ''
+
+
+class UserBase(SQLModel):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    name: str
+
+
+class UserPublicTrunc(UserBase):
+    pass
 
 
 class UserPublic(UserBase):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    info: str = Field(default='')
 
 
 class UserPrivate(UserPublic):

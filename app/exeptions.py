@@ -13,6 +13,11 @@ invalid_credentials_exc = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
+access_forbidden_exc = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail='Access forbidden'
+)
+
 login_in_use_exc = HTTPException(
     status_code=status.HTTP_409_CONFLICT,
     detail='Login is already in use'

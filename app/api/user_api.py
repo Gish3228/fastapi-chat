@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlmodel import select
 from psycopg.errors import UniqueViolation, NotNullViolation
 from sqlalchemy.exc import IntegrityError
 from typing import Annotated
 from uuid import UUID
 
-from ..models.user import UserCreate, User, UserPrivate, UserUpdate, UserPublic
+from ..models.user import UserCreate, User, UserPrivate, UserUpdate, UserPublic, UserPublicTrunc
 from ..dependencies.common import get_session
 from ..dependencies.security import GetCurrentUserFactory
 from ..utils.security import get_password_hash
@@ -28,6 +29,11 @@ async def user_post(user: UserCreate, session: Annotated[AsyncSession, Depends(g
         else:
             raise
     return {'status': 'ok'}
+
+
+@router.get('/', response_model=list[UserPublicTrunc])
+async def get_users(session: Annotated[AsyncSession, Depends(get_session)]):
+    return (await session.exec(select(User))).all()
 
 
 @router.get('/me', response_model=UserPrivate)
