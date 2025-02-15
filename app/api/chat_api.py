@@ -1,18 +1,16 @@
 from fastapi import APIRouter, Depends, status, Body, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlmodel import select
 from sqlalchemy.orm import joinedload
 from typing import Annotated
 from uuid import UUID
 from psycopg.errors import UniqueViolation, ForeignKeyViolation
 from sqlalchemy.exc import IntegrityError
 
-from ..models.user import User
+from ..models.user import User, UserPublicTrunc
 from ..models.chat import Chat, ChatCreate, ChatPublic
 from ..models.chat_member import ChatMember
 from ..dependencies.common import get_session
-from ..dependencies.security import GetCurrentUserFactory, get_current_user_id
-from ..exeptions import access_forbidden_exc
+from ..dependencies.security import GetCurrentUserFactory, check_chat_availability
 
 
 router = APIRouter(tags=['chats'])
@@ -34,19 +32,13 @@ async def read_user_chats(user: Annotated[User, Depends(GetCurrentUserFactory(jo
     return user.chats
 
 
-@router.post('/{chat_id}/add_users', status_code=status.HTTP_201_CREATED)
+@router.post('/{chat_id}/add_users',
+             status_code=status.HTTP_201_CREATED,
+             dependencies=[Depends(check_chat_availability)])
 async def add_chat_users(chat_id: UUID,
                          user_ids: Annotated[list[UUID], Body()],
-                         current_user_id: Annotated[UUID, Depends(get_current_user_id)],
                          session: Annotated[AsyncSession, Depends(get_session)]):
-    statement = select(select(ChatMember)
-                       .where(ChatMember.user_id == current_user_id)
-                       .where(ChatMember.chat_id == chat_id)
-                       .exists())
-    chat_query = await session.exec(statement)
-    if not chat_query.first():
-        raise access_forbidden_exc
-    
+
     session.add_all(ChatMember(user_id=user_id, chat_id=chat_id) for user_id in user_ids)
     try:
         await session.commit()
@@ -58,5 +50,13 @@ async def add_chat_users(chat_id: UUID,
         else:
             raise
     return {'status': 'ok'}
-    
+
+
+@router.get('/{chat_id}/members',
+            response_model=list[UserPublicTrunc],
+            dependencies=[Depends(check_chat_availability)])
+async def get_chat_members(chat_id: UUID,
+                           session: Annotated[AsyncSession, Depends(get_session)]):
+    chat_data = await session.get(Chat, chat_id, options=[joinedload(Chat.users)])
+    return chat_data.users
 

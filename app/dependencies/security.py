@@ -10,9 +10,10 @@ import jwt
 
 from ..models.user import User
 from ..models.misc import TokenData
+from ..models.chat_member import ChatMember
 from .common import get_session
 from ..utils.security import verify_password
-from ..exeptions import invalid_credentials_exc, invalid_token_exc
+from ..exeptions import invalid_credentials_exc, invalid_token_exc, access_forbidden_exc
 from ..config import settings, JWTSettings
 
 
@@ -60,4 +61,16 @@ class GetCurrentUserFactory:
         if user is None:
             raise invalid_token_exc
         return user
+
+
+async def check_chat_availability(chat_id: UUID,
+                                  user_id: Annotated[UUID, Depends(get_current_user_id)],
+                                  session: Annotated[AsyncSession, Depends(get_session)]):
+    statement = select(select(ChatMember)
+                       .where(ChatMember.user_id == user_id)
+                       .where(ChatMember.chat_id == chat_id)
+                       .exists())
+    chat_query = await session.exec(statement)
+    if not chat_query.first():
+        raise access_forbidden_exc
     
