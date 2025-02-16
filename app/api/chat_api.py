@@ -60,3 +60,16 @@ async def get_chat_members(chat_id: UUID,
     chat_data = await session.get(Chat, chat_id, options=[joinedload(Chat.users)])
     return chat_data.users
 
+
+@router.delete('/{chat_id}/me')
+async def leave_chat(chat_id: UUID,
+                     chat_member: Annotated[ChatMember, Depends(check_chat_availability)],
+                     session: Annotated[AsyncSession, Depends(get_session)]):
+    await session.delete(chat_member)
+    await session.commit()
+    chat = await session.get(Chat, chat_id, options=[joinedload(Chat.user_links)])
+    if not chat.user_links:
+        await session.delete(chat)
+        await session.commit()
+    return {'status': 'ok'}
+

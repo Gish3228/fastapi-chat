@@ -65,12 +65,13 @@ class GetCurrentUserFactory:
 
 async def check_chat_availability(chat_id: UUID,
                                   user_id: Annotated[UUID, Depends(get_current_user_id)],
-                                  session: Annotated[AsyncSession, Depends(get_session)]):
-    statement = select(select(ChatMember)
-                       .where(ChatMember.user_id == user_id)
-                       .where(ChatMember.chat_id == chat_id)
-                       .exists())
-    chat_query = await session.exec(statement)
-    if not chat_query.first():
+                                  session: Annotated[AsyncSession, Depends(get_session)]) -> ChatMember:
+    statement = (select(ChatMember)
+                 .where(ChatMember.user_id == user_id)
+                 .where(ChatMember.chat_id == chat_id)
+                 )
+    chat_member = (await session.exec(statement)).first()
+    if not chat_member:
         raise access_forbidden_exc
+    return chat_member
     
